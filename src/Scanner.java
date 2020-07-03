@@ -130,9 +130,6 @@ public class Scanner {
             }
             advance();
         }
-        if (!isAtEnd()) {
-            advance();
-        }
     }
 
     private void string() {
