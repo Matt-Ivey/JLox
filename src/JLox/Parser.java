@@ -10,15 +10,28 @@ import java.util.List;
  *  addition        -> multiplication ( ( "+" | "-" ) multiplication )* ;
  *  multiplication  -> unary ( ( "/" | "*" ) unary )* ;
  *  unary           -> ( ( "!" | "-" ) unary ) | primary ;
+ *  primary         -> NUMBER | STRING | "true" | "false" | "nil" | "(" expression ")" ;
  */
 
 public class Parser {
+
+    private static class ParseError extends RuntimeException {}
+
+
     private final List<Token> tokens;
     // Next token to be parsed (being inspected)
     private int current = 0;
 
     Parser(List<Token> tokens) {
         this.tokens = tokens;
+    }
+
+    Expr parse() {
+        try {
+            return expression();
+        } catch (ParseError error) {
+            return null;
+        }
     }
 
     // Takes initial expression
@@ -39,6 +52,7 @@ public class Parser {
         return expr;
     }
 
+    // Checks for comparators
     private Expr comparison() {
         Expr expr = addition();
 
@@ -51,6 +65,7 @@ public class Parser {
         return expr;
     }
 
+    // Checks for addition
     private Expr addition() {
         Expr expr = multiplication();
 
@@ -63,6 +78,7 @@ public class Parser {
         return expr;
     }
 
+    // Checks for multiplication
     private Expr multiplication() {
         Expr expr = unary();
 
@@ -75,6 +91,7 @@ public class Parser {
         return expr;
     }
 
+    // Checks for unary operators
     private Expr unary() {
         if (match(TokenType.BANG, TokenType.MINUS)) {
             Token operator = previous();
@@ -85,6 +102,7 @@ public class Parser {
         return primary();
     }
 
+    // Checks for primary expressions
     private Expr primary() {
         if (match(TokenType.NUMBER, TokenType.STRING)) {
             return new Expr.Literal(previous().literal);
@@ -99,12 +117,66 @@ public class Parser {
             consume(TokenType.RIGHT_BRACE, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
-        return null;
+
+        throw error(peek(), "Expect expression");
     }
 
-    private void consume(TokenType tokenType, String message) {
+    // Consumes a given token
+    private Token consume(TokenType type, String message) {
+        if (check(type)) return advance();
 
+        throw error(peek(), message);
     }
+
+    // returns throwable
+    private ParseError error(Token token, String message) {
+        JLox.error(token, message);
+        return new ParseError();
+    }
+
+    /*
+    private void synchronize() {
+        advance();
+
+        while (!isAtEnd()) {
+            if (previous().type == SEMICOLON) return;
+
+            switch (peek().type) {
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                    return;
+            }
+
+            advance();
+        }
+    }
+     */
+
+    private void synchronize() { //TODO why does code in the book do as above^^^
+        while (!isAtEnd()) {
+            switch (peek().type) {
+                case SEMICOLON: advance();
+                case CLASS:
+                case FUN:
+                case VAR:
+                case FOR:
+                case IF:
+                case WHILE:
+                case PRINT:
+                case RETURN:
+                    return;
+            }
+
+            advance();
+        }
+    }
+
 
     // checks for matches in given tokeType(s) with current type and advances
     private boolean match(TokenType... types) {
