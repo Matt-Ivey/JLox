@@ -1,3 +1,5 @@
+package JLox;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -115,7 +117,7 @@ public class Scanner {
         tokens.add(new Token(type, text, literal, line));
     }
 
-    private void multilineComment() {
+    private void multilineComment() { //TODO newline char and switch statement
         int depth = 1;
         while (depth > 0) {
             while ((peek() != '/' && peek() != '*') && !isAtEnd()) advance();

@@ -1,3 +1,5 @@
+package JLox;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -7,20 +9,20 @@ import java.nio.file.Paths;
 import java.util.List;
 
 /**
- * JLox interpreter
+ * JLox.JLox interpreter
  */
 public class JLox {
     // Error in current line
     static boolean hadError = false;
 
     /**
-     * JLox interpreter input
+     * JLox.JLox interpreter input
      * @param args File path for file execution or no argument for continuous execution.
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
         if (args.length > 1) {
-            System.out.println("Usage: JLox [script]");
+            System.out.println("Usage: JLox.JLox [script]");
             System.exit(64);
         } else if (args.length == 1) {
             runFile(args[0]);

@@ -1,6 +1,8 @@
+package JLox;
+
 public class Token {
 
-    // Token properties
+    // JLox.JLox.Token properties
     final TokenType type;
     final String lexeme;
     final Object literal;
