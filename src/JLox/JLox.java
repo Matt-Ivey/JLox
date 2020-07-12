@@ -12,8 +12,11 @@ import java.util.List;
  * JLox.JLox interpreter
  */
 public class JLox {
+    private static final Interpreter interpreter = new Interpreter();
+
     // Error in current line
     static boolean hadError = false;
+    static boolean hadRuntimeError = false;
 
     /**
      * JLox.JLox interpreter input
@@ -39,6 +42,10 @@ public class JLox {
     private static void runFile(String path) throws IOException {
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes, Charset.defaultCharset()));
+
+        // Indicate an error in exit code.
+        if (hadError) System.exit((65));
+        if (hadRuntimeError) System.exit(70);
     }
 
     /**
@@ -71,7 +78,7 @@ public class JLox {
         // Error check
         if (hadError) return;
 
-        System.out.println(new AstPrinter().print(expression));
+        interpreter.interpret(expression);
     }
 
     static void error(int line, String message) {
@@ -84,6 +91,11 @@ public class JLox {
         } else {
             report(token.line, " at '" + token.lexeme + "'", message);
         }
+    }
+
+    static void runtimeError(RuntimeError error) {
+        System.err.println(error.getMessage() + "\n[line " + error.token.line + "]");
+        hadRuntimeError = true;
     }
 
     private static void report(int line, String where, String message) {
