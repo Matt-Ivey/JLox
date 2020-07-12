@@ -117,20 +117,27 @@ public class Scanner {
         tokens.add(new Token(type, text, literal, line));
     }
 
-    private void multilineComment() { //TODO newline char and switch statement
+
+    private void multilineComment() {
         int depth = 1;
+
         while (depth > 0) {
-            while ((peek() != '/' && peek() != '*') && !isAtEnd()) advance();
+            // Unterminated multiline comments allowed
             if (isAtEnd()) break;
-            if (peek() == '/' && peekNext() == '*') {
-                depth++;
-                advance();
+
+            char c = advance();
+
+            switch (c) {
+                case '*':
+                    if (match('/')) depth--;
+                    break;
+                case '/':
+                    if (match('*')) depth++;
+                    break;
+                case '\n':
+                    line++;
+                    break;
             }
-            if (peek() == '*' && peekNext() == '/') {
-                depth--;
-                advance();
-            }
-            advance();
         }
     }
 
